@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.controllers import auth_controller
@@ -15,3 +14,11 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)):
 @authRouter.post("/signin", response_model=UserSignin, status_code=200)
 def signin(payload: UserLogin, db: Session = Depends(get_db)):
     return auth_controller.signin(db, payload)
+
+@authRouter.get("/user/me", response_model=UserRead, status_code=200)
+def user_me(current_user = Depends(auth_controller.get_current_user)):
+    return current_user
+
+@authRouter.post("/logout", status_code=204)
+def logout(db: Session = Depends(get_db), token = Depends(auth_controller.auth_scheme)):
+    auth_controller.logout(db, token)
