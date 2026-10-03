@@ -5,6 +5,27 @@ services:
     container_name: api-afterthought
     ports:
       - "8080:8000"
+    env_file: .env
     volumes:
       - ./app:/code/app
     command: fastapi dev app/main.py --host 0.0.0.0 --port 8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    container_name: afterthought-db
+    env_file: .env
+    ports:
+      - "3307:3306"   # optional: lets you connect from your machine (DBeaver, etc.)
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
