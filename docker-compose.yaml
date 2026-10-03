@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    image: api-afterthought
+    container_name: api-afterthought
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./app:/code/app
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 8000
