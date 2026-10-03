@@ -13,7 +13,15 @@ from app.schemas.user import UserCreate, UserLogin, UserSignin, UserRead
 
 auth_scheme = OAuth2PasswordBearer(tokenUrl="auth/signin")
 
-def create_user(db: Session, payload: UserCreate):
+def signup(db: Session, payload: UserCreate):
+    user_exists = db.execute(select(users).where(users.c.email == payload.email)).scalar()
+
+    if user_exists is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered",
+        )
+
     result = db.execute(
         insert(users).values(
             name=payload.name,
