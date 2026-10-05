@@ -3,12 +3,14 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 import logging
 
 from app.core.limiter import limiter
 from app.database.database import Base, engine
 from app.routes.auth import authRouter
+from app.routes.journal import journalRouter
 from app.routes.routes import router
 
 @asynccontextmanager
@@ -24,7 +26,8 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(router)
-app.include_router(authRouter, prefix="/auth", tags=["auth"])
+app.include_router(authRouter, prefix="/api/auth", tags=["api.auth"])
+app.include_router(journalRouter, prefix="/api/journal", tags=["api.journal"])
 
 @app.exception_handler(RequestValidationError)
 async def validation_handler(request: Request, exc: RequestValidationError):

@@ -1,17 +1,14 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, Depends
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select, insert, delete
 from sqlalchemy.orm import Session
 
-from app.core.auth import hash_password, verify_password, create_access_token, decode_access_token, decode_token_payload
+from app.core.auth import hash_password, verify_password, create_access_token, decode_token_payload, auth_scheme
 from app.database.database import get_db
 from app.models.revoked_token import revoked_tokens
 from app.models.user import users
 from app.schemas.user import UserCreate, UserLogin, UserSignin, UserRead
-
-auth_scheme = OAuth2PasswordBearer(tokenUrl="auth/signin")
 
 def signup(db: Session, payload: UserCreate):
     user_exists = db.execute(select(users).where(users.c.email == payload.email)).scalar()
