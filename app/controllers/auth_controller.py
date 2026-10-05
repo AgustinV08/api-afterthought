@@ -26,12 +26,15 @@ def signup(db: Session, payload: UserCreate):
             password=hash_password(payload.password),
         )
     )
-    db.commit()
     user_id = result.inserted_primary_key[0]
 
-    return db.execute(
+    query = db.execute(
         select(users).where(users.c.id == user_id)
     ).mappings().first()
+
+    db.commit()
+
+    return query;
 
 def signin(db: Session, payload: UserLogin) -> UserSignin:
     user = db.execute(

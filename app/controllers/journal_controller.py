@@ -11,6 +11,7 @@ def get(db: Session, user_id: int):
 
 def post(db: Session, user_id: int, payload: JournalCreate):
     result = db.execute(insert(journals).values(content=payload.content, user_id=user_id))
+    query = db.execute(select(journals).where(journals.c.id == result.inserted_primary_key[0])).mappings().first();
     db.commit()
 
-    return db.execute(select(journals).where(journals.c.id == result.inserted_primary_key[0])).mappings().first()
+    return query
